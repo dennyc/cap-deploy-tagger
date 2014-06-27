@@ -8,7 +8,10 @@ namespace :deploy do
       else
         tag_name = "#{fetch(:deploy_tag, "deployed")}_#{fetch(:stage)}"
         latest_revision = fetch(:current_revision)
-        strategy.git "tag -f #{tag_name} #{latest_revision}"
+        user_name = `git config --get user.name`.chomp
+        user_email = `git config --get user.email`.chomp
+        tag_message = fetch(:deploy_tag_message, "Deployed by #{user_name} (#{user_email}) as release #{release_timestamp}")
+        strategy.git "tag -f #{tag_name} #{latest_revision} -m \"#{tag_message}\""
         strategy.git "push -f --tags"
         info "[cap-deploy-tagger] Tagged #{latest_revision} with #{tag_name}"
       end
